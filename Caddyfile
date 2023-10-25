@@ -4,6 +4,8 @@
         format console
         level DEBUG
     }
+
+    admin :2019
 }
 
 localhost {
@@ -16,14 +18,7 @@ localhost {
         file_server
     }
 
-    # Enable response compression
     encode gzip zstd
-
-    # Test redirection
-    redir /old-path /new-path
-
-    # Rate limiting
-    limit 10
 
     header {
         Strict-Transport-Security "max-age=31536000;"

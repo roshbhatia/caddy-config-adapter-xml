@@ -1,31 +1,134 @@
-<global>
-    <log>
-        <output>stdout</output>
-        <format>console</format>
-        <level>DEBUG</level>
-    </log>
-</global>
-<server domain="localhost">
-    <respond message="Hello, world!"/>
-    <tls>internal</tls>
-    <handle_errors>
-        <rewrite path="/{http.error.status_code}.html"/>
-        <file_server/>
-    </handle_errors>
-    <encode methods="gzip, zstd"/>
-    <redir source="/old-path" destination="/new-path"/>
-    <limit value="10"/>
-    <header>
-        <Strict-Transport-Security>max-age=31536000;</Strict-Transport-Security>
-        <X-Content-Type-Options>nosniff</X-Content-Type-Options>
-        <X-Frame-Options>DENY</X-Frame-Options>
-    </header>
-    <respond path="/health" message="Healthy"/>
-    <header>
-        <Access-Control-Allow-Origin>*</Access-Control-Allow-Origin>
-        <Access-Control-Allow-Methods>GET, POST, PUT</Access-Control-Allow-Methods>
-    </header>
-</server>
-<server domain="localhost:2016">
-    <respond message="Goodbye, world!"/>
-</server>
+<?xml version="1.0" encoding="UTF-8" ?>
+<caddyfile>
+	<admin>
+		<listen>:2019</listen>
+	</admin>
+	<apps>
+		<http>
+			<servers>
+				<srv0>
+					<listen>:2016</listen>
+					<routes>
+						<handle>
+							<handler>subroute</handler>
+							<routes>
+								<handle>
+									<body>Goodbye, world!</body>
+									<handler>static_response</handler>
+								</handle>
+							</routes>
+						</handle>
+						<match>
+							<host>localhost</host>
+						</match>
+						<terminal>true</terminal>
+					</routes>
+				</srv0>
+				<srv1>
+					<errors>
+						<routes>
+							<handle>
+								<handler>subroute</handler>
+								<routes>
+									<group>group0</group>
+									<handle>
+										<handler>rewrite</handler>
+										<uri>/{http.error.status_code}.html</uri>
+									</handle>
+								</routes>
+								<routes>
+									<handle>
+										<handler>file_server</handler>
+										<hide>/etc/caddy/Caddyfile</hide>
+									</handle>
+								</routes>
+							</handle>
+							<match>
+								<host>localhost</host>
+							</match>
+							<terminal>true</terminal>
+						</routes>
+					</errors>
+					<listen>:443</listen>
+					<routes>
+						<handle>
+							<handler>subroute</handler>
+							<routes>
+								<handle>
+									<handler>headers</handler>
+									<response>
+										<set>
+											<Strict-Transport-Security>max-age=31536000;</Strict-Transport-Security>
+											<X-Content-Type-Options>nosniff</X-Content-Type-Options>
+											<X-Frame-Options>DENY</X-Frame-Options>
+										</set>
+									</response>
+								</handle>
+								<handle>
+									<handler>headers</handler>
+									<response>
+										<set>
+											<Access-Control-Allow-Methods>GET, POST, PUT</Access-Control-Allow-Methods>
+											<Access-Control-Allow-Origin>*</Access-Control-Allow-Origin>
+										</set>
+									</response>
+								</handle>
+								<handle>
+									<encodings>
+										<gzip />
+										<zstd />
+									</encodings>
+									<handler>encode</handler>
+									<prefer>gzip</prefer>
+									<prefer>zstd</prefer>
+								</handle>
+							</routes>
+							<routes>
+								<handle>
+									<body>Healthy</body>
+									<handler>static_response</handler>
+								</handle>
+								<match>
+									<path>/health</path>
+								</match>
+							</routes>
+							<routes>
+								<handle>
+									<body>Hello, world!</body>
+									<handler>static_response</handler>
+								</handle>
+							</routes>
+						</handle>
+						<match>
+							<host>localhost</host>
+						</match>
+						<terminal>true</terminal>
+					</routes>
+				</srv1>
+			</servers>
+		</http>
+		<tls>
+			<automation>
+				<policies>
+					<issuers>
+						<module>internal</module>
+					</issuers>
+					<subjects>localhost</subjects>
+				</policies>
+			</automation>
+		</tls>
+	</apps>
+	<logging>
+		<logs>
+			<default>
+				<encoder>
+					<format>console</format>
+				</encoder>
+				<level>DEBUG</level>
+				<writer>
+					<output>stdout</output>
+				</writer>
+			</default>
+		</logs>
+	</logging>
+</caddyfile>

@@ -1,27 +1,27 @@
 version: '3'
 
 tasks:
-  build-caddy:
+  build-caddy-with-xml-config-adapter:
     desc: Build Caddy with the XML config adapter plugin
     cmds:
       - xcaddy build --with github.com/roshbhatia/caddy-config-adapter-xml=./ --output ./bin/caddy
 
-  docker-up-standard-caddy:
+  docker-up-caddy:
     desc: Start the standard Caddy image
     cmds:
-      - docker-compose up -d standard-caddy
+      - docker-compose up standard-caddy
 
-  docker-up-xml-caddy:
+  docker-up-caddy-with-xml-config-adapter:
     desc: Build and start the Caddy image with XML config adapter plugin
     cmds:
-      - docker-compose up --build -d caddy-with-xml-config-adapter
+      - docker-compose up caddy-with-xml-config-adapter --build 
 
-  down-standard-caddy:
+  docker-down-caddy:
     desc: Stop the standard Caddy image
     cmds:
       - docker-compose stop standard-caddy
 
-  down-xml-caddy:
+  docker-down-caddy-with-xml-config-adapter:
     desc: Stop the Caddy image with XML config adapter plugin
     cmds:
       - docker-compose stop caddy-with-xml-config-adapter
