@@ -1,0 +1,44 @@
+{
+    log {
+        output stdout
+        format console
+        level DEBUG
+    }
+}
+
+localhost {
+    respond "Hello, world!"
+    
+    tls internal
+
+    handle_errors {
+        rewrite * /{http.error.status_code}.html
+        file_server
+    }
+
+    # Enable response compression
+    encode gzip zstd
+
+    # Test redirection
+    redir /old-path /new-path
+
+    # Rate limiting
+    limit 10
+
+    header {
+        Strict-Transport-Security "max-age=31536000;"
+        X-Content-Type-Options nosniff
+        X-Frame-Options DENY
+    }
+
+    respond /health "Healthy"
+
+    header {
+        Access-Control-Allow-Origin *
+        Access-Control-Allow-Methods "GET, POST, PUT"
+    }
+}
+
+localhost:2016 {
+    respond "Goodbye, world!"
+}

@@ -1,0 +1,31 @@
+<global>
+    <log>
+        <output>stdout</output>
+        <format>console</format>
+        <level>DEBUG</level>
+    </log>
+</global>
+<server domain="localhost">
+    <respond message="Hello, world!"/>
+    <tls>internal</tls>
+    <handle_errors>
+        <rewrite path="/{http.error.status_code}.html"/>
+        <file_server/>
+    </handle_errors>
+    <encode methods="gzip, zstd"/>
+    <redir source="/old-path" destination="/new-path"/>
+    <limit value="10"/>
+    <header>
+        <Strict-Transport-Security>max-age=31536000;</Strict-Transport-Security>
+        <X-Content-Type-Options>nosniff</X-Content-Type-Options>
+        <X-Frame-Options>DENY</X-Frame-Options>
+    </header>
+    <respond path="/health" message="Healthy"/>
+    <header>
+        <Access-Control-Allow-Origin>*</Access-Control-Allow-Origin>
+        <Access-Control-Allow-Methods>GET, POST, PUT</Access-Control-Allow-Methods>
+    </header>
+</server>
+<server domain="localhost:2016">
+    <respond message="Goodbye, world!"/>
+</server>

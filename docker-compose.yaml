@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  caddy-with-xml-config-adapter:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80"
+      - "8443:443"
+    volumes:
+      - ./caddyfile.xml:/etc/caddy/caddyfile.xml
+    command: ["caddy", "run", "--config", "/etc/caddy/caddyfile.xml", "--adapter", "xml"]
+
+  standard-caddy:
+    image: caddy:2.7.5
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
